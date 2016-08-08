@@ -1,15 +1,24 @@
 package com.samkantor.borderdelays;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import com.samkantor.borderdelays.model.Port;
+import com.samkantor.borderdelays.model.RealmHandler;
+
+import java.util.ArrayList;
 
 public class ActivityMain extends AppCompatActivity {
+
+    private RealmHandler mRealmHandler;
+    private ListView mListView;
+    private ArrayAdapter<String> mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,16 +27,11 @@ public class ActivityMain extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        mRealmHandler = new RealmHandler(this);
+
+        refreshUI();
+
     }
 
     @Override
@@ -45,10 +49,32 @@ public class ActivityMain extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.Developer) {
+            //Snackbar.make(this.findViewById(android.R.id.content),
+            //        "Port Test added!", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
+            mRealmHandler.insertPort("Test" + String.valueOf(mRealmHandler.getPortList().size()));
+            refreshUI();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void refreshUI() {
+        mListView = (ListView) findViewById(R.id.port_list);
+        ArrayList<Port> portList = mRealmHandler.getPortList();
+        String [] arr = new String[portList.size()];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = portList.get(i).getName();
+        }
+        mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, arr);
+        mListView.setAdapter(mAdapter);
+
+    }
+
+    public void getPortList() {
+        ArrayList<Port> portList = mRealmHandler.getPortList();
+        for (Port port : portList) {
+            Toast.makeText(this, port.getName(), Toast.LENGTH_SHORT ).show();
+        }
     }
 }
